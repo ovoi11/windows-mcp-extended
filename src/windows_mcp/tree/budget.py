@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_TREE_ELEMENTS = 500
 
 
-def resolve_max_tree_elements(env=None) -> int:
-    """Read the tree-capture element limit from the environment."""
+def resolve_max_tree_elements(env: "os._Environ[str] | dict[str, str] | None" = None) -> int:
     source = os.environ if env is None else env
     raw = source.get("WINDOWS_MCP_MAX_TREE_ELEMENTS", "")
     if not raw.strip():
@@ -28,8 +27,18 @@ def resolve_max_tree_elements(env=None) -> int:
     try:
         parsed = int(raw.strip())
     except ValueError:
+        logger.warning(
+            "Invalid WINDOWS_MCP_MAX_TREE_ELEMENTS value %r, using default %d",
+            raw,
+            DEFAULT_MAX_TREE_ELEMENTS,
+        )
         return DEFAULT_MAX_TREE_ELEMENTS
     if parsed < 1:
+        logger.warning(
+            "WINDOWS_MCP_MAX_TREE_ELEMENTS %r must be >= 1, using default %d",
+            parsed,
+            DEFAULT_MAX_TREE_ELEMENTS,
+        )
         return DEFAULT_MAX_TREE_ELEMENTS
     return parsed
 
